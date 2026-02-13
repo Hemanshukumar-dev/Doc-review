@@ -43,7 +43,7 @@ export default function Home() {
     }
   };
 
-  const handleAction = async (action: 'summarize' | 'extractTags' | 'riskScan') => {
+  const handleAction = async (action: 'summarize' | 'extractTags') => {
     if (!pdfText) {
       alert('Please upload a document first.');
       return;
@@ -52,7 +52,6 @@ export default function Home() {
     const actionLabels = {
       summarize: 'Summarize Document',
       extractTags: 'Extract Tags',
-      riskScan: 'Scan for Risks',
     };
 
     await sendMessage(
@@ -88,12 +87,30 @@ export default function Home() {
               className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm ${
+                className={`max-w-[85%] rounded-2xl px-5 py-3.5 text-sm leading-relaxed shadow-sm relative group ${
                   m.role === 'user'
                     ? 'bg-blue-600 text-white'
                     : 'bg-white border border-gray-100 text-gray-700'
                 }`}
               >
+                {m.role !== 'user' && (
+                    <button
+                        onClick={() => {
+                            navigator.clipboard.writeText(messageText(m));
+                            // Optional: Show feedback (toast or icon change)
+                            // For simplicity, we can use a temporary state or just rely on user knowing it works.
+                            // Better: Add a state for "copied" logic if we want to change icon.
+                            // Since we are inside a map, we can't easily use a simple state for all.
+                            // We can use a small self-contained component or just a simple alert/console log for now?
+                            // No, requirements asked for a clippy button. 
+                            // Let's make it a simple button.
+                        }}
+                        className="absolute top-2 right-2 p-1.5 text-gray-400 hover:text-gray-600 bg-white/50 hover:bg-white rounded-md opacity-0 group-hover:opacity-100 transition-all"
+                        title="Copy to clipboard"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                    </button>
+                )}
                 <ReactMarkdown
                   components={{
                     h1: ({node, ...props}) => <h1 className="text-xl font-bold text-gray-900 mb-3 mt-4" {...props} />,
@@ -151,7 +168,7 @@ export default function Home() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={() => handleAction('summarize')}
                         disabled={!pdfText || isLoading}
@@ -165,13 +182,6 @@ export default function Home() {
                         className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-gray-200 hover:bg-gray-50 disabled:bg-gray-50 disabled:text-gray-300 disabled:border-gray-100 disabled:cursor-not-allowed text-gray-700 text-sm font-medium rounded-lg transition-all active:scale-[0.98]"
                     >
                         <span>Extract Tags</span>
-                    </button>
-                    <button
-                        onClick={() => handleAction('riskScan')}
-                        disabled={!pdfText || isLoading}
-                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-700 border border-red-100 hover:bg-red-100 disabled:bg-gray-50 disabled:text-gray-300 disabled:border-gray-100 disabled:cursor-not-allowed text-sm font-medium rounded-lg transition-all active:scale-[0.98]"
-                    >
-                        Scan Risks
                     </button>
                 </div>
             </div>
